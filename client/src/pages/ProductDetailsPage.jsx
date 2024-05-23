@@ -14,7 +14,7 @@ const ProductDetailsPage = () => {
         {/* Breadcrumbs */}
         <BreadCrumbs />
       </div>
-      <div className="flex-1 bg-orange-300">
+      <div className="flex-1">
         {/* Product Details */}
         <ProductDetails />
       </div>
