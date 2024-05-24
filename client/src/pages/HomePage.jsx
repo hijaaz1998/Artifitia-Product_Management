@@ -9,7 +9,7 @@ import CartSidebar from '../components/CartSidebar';
 import WishlistSidebar from '../components/WishlistSidebar';
 import AddCategoryModal from '../components/modal/AddCategoryModal';
 import AddSubCategoryModal from '../components/modal/AddSubCategoryModal';
-import AddProductModal from '../components/modal/AddProductModal';
+import AddProductModal from '../components/AddProductModal';
 
 const HomePage = () => {
 
@@ -66,7 +66,7 @@ const HomePage = () => {
           wishlistCount={wishlistItems.length} 
         />
       </div>
-      <div className="flex py-3 w-full fixed top-16 z-10 bg-white">
+      <div className="flex py-3 w-full fixed top-[70px] z-10 bg-purple-300">
         <div className="w-1/2 flex items-center">
           <BreadCrumbs />
         </div>
@@ -77,15 +77,22 @@ const HomePage = () => {
             onAddProductClick={toggleAddProductModal}
           />
         </div>
+
       </div>
-      <div className="flex flex-1 mt-24">
-        <div className="w-3/10 fixed top-28 mt-12 bottom-0">
-          <SideBar />
+      <div className="bg-violet-800 mt-36 grid grid-cols-10 h-full">
+        <div className="bg-yellow-200 col-span-2 flex flex-col">
+          <div className="w-72 fixed h-full">
+            <SideBar />
+          </div>
         </div>
-        <div className="flex-1 bg-orange-300 ml-48 overflow-y-auto mt-16">
-          <Main />
+        <div className="bg-orange-300 col-span-8 flex flex-col">
+          <div className="flex-grow">
+            <Main />
+          </div>
         </div>
       </div>
+
+
       {isCartOverlayOpen && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-end z-20">
           <div className="w-3/10 bg-white h-full">
