@@ -10,7 +10,7 @@ import persistStore from 'redux-persist/es/persistStore'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <Provider store={store}>
-    <PersistGate loading={null} persistor={persistStore}>
+    <PersistGate loading={null} persistor={persistedStore}>
       <App />
       <Toaster/>
     </PersistGate>

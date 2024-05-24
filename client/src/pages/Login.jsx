@@ -1,10 +1,18 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom';
 import LoginForm from '../components/LoginForm'
-import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const LoginPage = () => {
-    toast.success('hello')
+
+    const navigate = useNavigate();
+    const user = useSelector((state) => state.user.user)
+    
+    useEffect(() => {
+        if(user) navigate('/home')
+    })
+
   return (
     <div className="w-full flex flex-col md:flex-row h-screen">
         <div className="w-full md:w-[60%] p-4 flex items-center justify-center">

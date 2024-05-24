@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import NavBar from '../components/Navbar';
 import BreadCrumbs from '../components/BreadCrumbs';
 import Buttons from '../components/Buttons';
@@ -11,6 +12,7 @@ import AddSubCategoryModal from '../components/modal/AddSubCategoryModal';
 import AddProductModal from '../components/modal/AddProductModal';
 
 const HomePage = () => {
+
   const [isCartOverlayOpen, setIsCartOverlayOpen] = useState(false);
   const [isWishlistOverlayOpen, setIsWishlistOverlayOpen] = useState(false);
   const [isAddCategoryModalOpen, setIsAddCategoryModalOpen] = useState(false);

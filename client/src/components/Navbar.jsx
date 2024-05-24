@@ -1,8 +1,20 @@
 import React from 'react';
 import { FaHeart, FaShoppingCart, FaSignOutAlt } from 'react-icons/fa';
 import LogoImage from '/Business Management Daily.jpeg'; 
+import { logout } from '../slices/userSlice';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const NavBar = ({ onToggleCartOverlay, onToggleWishlistOverlay, cartCount, wishlistCount }) => {
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate()
+
+  const logoutHandler = () => {
+    dispatch(logout());
+    navigate('/')
+  }
+  
   return (
     <div className="p-4 flex justify-between items-center bg-sky-950">
       <div className="flex items-center">
@@ -42,7 +54,7 @@ const NavBar = ({ onToggleCartOverlay, onToggleWishlistOverlay, cartCount, wishl
           )}
         </div>
         <button className="p-2 text-amber-500 hover:text-white border-blue-500">
-          <FaSignOutAlt size={24} className="bg-transparent" />
+          <FaSignOutAlt size={24} className="bg-transparent" onClick={logoutHandler} />
         </button>
       </div>
     </div>

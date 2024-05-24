@@ -1,8 +1,17 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React,{useEffect} from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import RegisterForm from '../components/RegisterForm'
+import { useSelector } from 'react-redux'
 
 const RegisterPage = () => {
+
+    const navigate = useNavigate();
+    const user = useSelector((state) => state.user.user)
+    
+    useEffect(() => {
+        if(user) navigate('/home')
+    })
+
   return (
     <div className="w-full flex flex-col md:flex-row h-screen">
         <div className="w-full md:w-[40%] p-4 flex flex-col items-center justify-center" style={{ backgroundImage: 'url(/background.jpeg)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
