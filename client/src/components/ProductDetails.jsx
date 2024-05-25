@@ -1,15 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { AiOutlineHeart } from 'react-icons/ai'; // Importing a heart icon from react-icons
+import { AiOutlineHeart } from 'react-icons/ai';
 import axiosInstance from '../axionEndPoint/axiosEndPoint';
 import toast, { Toaster } from 'react-hot-toast';
 import EditProductModal from './modal/EditProductModal';
 
 const ProductDetails = ({ productId }) => {
-  const [selectedVariant, setSelectedVariant] = useState(null);
+  const userId = localStorage.getItem('userId');
+
+  const [selectedVariantIndex, setSelectedVariantIndex] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [product, setProduct] = useState({});
   const [mainImage, setMainImage] = useState("");
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // State for controlling the edit modal
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [totalAmount, setTotalAmount] = useState(0);
 
   const fetchSingleProductDetails = async () => {
     try {
@@ -21,25 +24,69 @@ const ProductDetails = ({ productId }) => {
     }
   };
 
-  const handleRAMClick = (variant) => {
-    setSelectedVariant(variant);
-    setQuantity(1); // Reset quantity when changing variant
+  const handleRAMClick = (index) => {
+    setSelectedVariantIndex(index);
+    setQuantity(1);
+    calculateTotalAmount(product.variants[index].price, 1);
   };
 
   const incrementQuantity = () => {
-    if (!selectedVariant) {
+    if (selectedVariantIndex === null) {
       toast.error('Please select a RAM variant first.');
       return;
     }
+    const selectedVariant = product.variants[selectedVariantIndex];
     if (quantity >= selectedVariant.qty) {
       toast.error('Stock size exceeded.');
       return;
     }
-    setQuantity(quantity + 1);
+    const newQuantity = quantity + 1;
+    setQuantity(newQuantity);
+    calculateTotalAmount(selectedVariant.price, newQuantity);
   };
 
   const decrementQuantity = () => {
-    setQuantity(quantity > 1 ? quantity - 1 : 1);
+    const newQuantity = quantity > 1 ? quantity - 1 : 1;
+    setQuantity(newQuantity);
+    if (selectedVariantIndex !== null) {
+      calculateTotalAmount(product.variants[selectedVariantIndex].price, newQuantity);
+    }
+  };
+
+  const calculateTotalAmount = (price, quantity) => {
+    setTotalAmount(price * quantity);
+  };
+
+  const handleBuyNow = async () => {
+    if (selectedVariantIndex === null) {
+      toast.error('Please select a RAM variant first.');
+      return;
+    }
+
+    const selectedVariant = product.variants[selectedVariantIndex];
+
+    try {
+      const response = await axiosInstance.post('/product/addToCart', {
+        userId,
+        productId: productId,
+        variant: selectedVariant,
+        quantity: quantity,
+        amount: Number(selectedVariant.price.toFixed(2)),
+        totalAmount: totalAmount
+      });
+
+      if(response.data.success){
+        toast.success('Product added to cart successfully!');
+        setProduct(response.data.updatedProduct)
+      }
+    } catch (error) {
+      if(error.response && error.response.data){
+        toast.error(error.response.data.message)
+      } else {
+        console.log(error)
+        toast.error('Failed to add product to cart.');
+      }
+    }
   };
 
   useEffect(() => {
@@ -68,8 +115,9 @@ const ProductDetails = ({ productId }) => {
       <div className="w-1/2 p-4">
         <h2 className="text-xl font-bold mb-2">{product.productName}</h2>
         <p className="mb-2 font-semibold">
-          {selectedVariant ? `$${selectedVariant.price.toFixed(2)}` : '$523.99'}
+          {selectedVariantIndex !== null ? `$${product.variants[selectedVariantIndex].price.toFixed(2)}` : 'Select a variant to show the price'}
         </p>
+        <p className='mb-2 font-semibold'>{product.description}</p>
         <div className="flex items-center mb-2">
           <span className="text-sm font-semibold">Availability:</span>
           <div className="flex items-center ml-2 text-green-600">
@@ -84,11 +132,11 @@ const ProductDetails = ({ productId }) => {
           <div className="flex items-center mb-2">
             <label className="text-sm font-semibold mr-2">RAM:</label>
             <div className="flex space-x-2">
-              {product.variants && product.variants.map((variant) => (
+              {product.variants && product.variants.map((variant, index) => (
                 <button
-                  key={variant._id}
-                  onClick={() => handleRAMClick(variant)}
-                  className={`w-20 h-12 flex items-center justify-center border rounded ${selectedVariant && selectedVariant.ram === variant.ram ? 'bg-amber-500 text-white' : 'bg-gray-200 text-black'}`}
+                  key={index}
+                  onClick={() => handleRAMClick(index)}
+                  className={`w-20 h-12 flex items-center justify-center border rounded ${selectedVariantIndex === index ? 'bg-amber-500 text-white' : 'bg-gray-200 text-black'}`}
                 >
                   {variant.ram}GB
                 </button>
@@ -106,24 +154,31 @@ const ProductDetails = ({ productId }) => {
             </div>
           </div>
         </div>
+        <p className="text-sm font-bold my-3">Total: ${totalAmount.toFixed(2)}</p>
         <div className="flex">
           <button
             className="bg-amber-500 text-white px-8 py-4 w-40 mr-2 rounded-3xl flex-grow"
-            onClick={() => setIsEditModalOpen(true)} // Open the edit modal when clicked
+            onClick={() => setIsEditModalOpen(true)}
           >
             Edit Product
           </button>
-          <button className="bg-amber-500 text-white px-4 py-2 mr-2 rounded-3xl flex-grow">Buy it Now</button>
+          <button
+            className="bg-amber-500 text-white px-4 py-2 mr-2 rounded-3xl flex-grow"
+            onClick={handleBuyNow}
+          >
+            Buy it Now
+          </button>
+          
           <button className="bg-gray-200 text-gray-800 px-4 rounded-full flex items-center justify-center ml-auto">
             <AiOutlineHeart className="w-6 h-6" />
           </button>
         </div>
       </div>
-      {/* Edit Product Modal */}
       <EditProductModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
-        product={product} // Pass the product details to the modal
+        product={product}
+        fetchSingleProductDetails={fetchSingleProductDetails}
       />
     </div>
   );

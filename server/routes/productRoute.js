@@ -14,6 +14,7 @@ productRouter.post('/addProduct', upload.none(), productController.addProduct)
 productRouter.get('/getCategoriesWithSub/:userId', productController.getCategoriesWithSubCategories)
 productRouter.get('/getAllProducts/:userId', productController.getAllProducts)
 productRouter.get('/getSingleProduct/:productId', productController.getSingleProduct)
-productRouter.put('/updateProduct/:productId', productController.updateProduct)
+productRouter.put('/updateProduct/:productId', productController.updateProduct);
+productRouter.post('/addToCart', productController.addToCart)
 
 module.exports = productRouter

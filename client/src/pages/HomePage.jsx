@@ -66,7 +66,7 @@ const HomePage = () => {
           wishlistCount={wishlistItems.length} 
         />
       </div>
-      <div className="flex py-3 w-full fixed top-[70px] z-10 bg-purple-300">
+      <div className="flex py-3 w-full fixed top-[70px] z-10 ">
         <div className="w-1/2 flex items-center">
           <BreadCrumbs />
         </div>

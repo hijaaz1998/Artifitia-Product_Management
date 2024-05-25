@@ -12,7 +12,11 @@ const userModel = new mongoose.Schema({
     password: {
         type: String,
         required: true
+    },
+    cart: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Cart'
     }
-}, {timestamps: true})
+}, { timestamps: true });
 
-module.exports = mongoose.model('User', userModel)
+module.exports = mongoose.model('User', userModel);

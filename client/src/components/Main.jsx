@@ -25,7 +25,7 @@ const Main = () => {
     <div className="bg-purple-400 h-full p-4">
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
         {products.map(product => (
-          <div key={product._id} className="bg-yellow-200 rounded-lg shadow-md p-4 relative">
+          <div key={product._id} className="bg-yellow-200 rounded-lg shadow-md p-4 relative mx-16">
             <Link to={`/productDetails/${product._id}`} className="block"> {/* Link to product details */}
               <div className='flex justify-center'>
                 <img src={product.images[0]} alt={product.name} className="w-8/12 h-auto rounded-lg" />

@@ -2,6 +2,7 @@ const Category = require('../model/categoryModel');
 const SubCategoryModel = require('../model/SubCategoryModel');
 const SubCategory = require('../model/SubCategoryModel')
 const Product = require('../model/productModel')
+const Cart = require('../model/cartMode')
 
 const addCategory = async (req, res) => {
     try {
@@ -89,7 +90,7 @@ const addProduct = async (req, res) => {
             variants,
             subCategory: selectedSubCategory,
             description,
-            images: imageUrls, // Assign imageUrls directly to the images field
+            images: imageUrls,
             author: userId
         });
 
@@ -148,7 +149,6 @@ const getSingleProduct = async (req, res) => {
             return res.status(404).json({ message: 'Product not found' });
         }
         console.log(product)
-        // If product is found, send it in the response
         res.status(200).json({ product });
     } catch (error) {
         console.log(error);
@@ -185,6 +185,60 @@ const updateProduct = async (req, res) => {
     }
 };
 
+const addToCart = async (req, res) => {
+    try {
+        const { userId, productId, variant, quantity, amount, totalAmount } = req.body;
+
+        const product = await Product.findById(productId);
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        let cart = await Cart.findOne({ user: userId });
+
+        const cartItem = {
+            product: productId,
+            ram: variant.ram,
+            price: amount,
+            qty: quantity,
+            totalAmount: totalAmount
+        };
+
+        const variantIndex = product.variants.findIndex(v => v.ram === variant.ram);
+        if (variantIndex === -1) {
+            return res.status(404).json({ message: 'Variant not found' });
+        }
+        if (product.variants[variantIndex].qty < quantity) {
+            return res.status(400).json({ message: 'Insufficient stock' });
+        }
+        product.variants[variantIndex].qty -= quantity;
+        const updatedProduct = await product.save();
+
+        if (cart) {
+            const items = cart.items.findIndex(item => item.product.toString() === productId && item.ram === variant.ram);
+
+            if (items > -1) {
+                cart.items[items].qty += quantity;
+                cart.items[items].totalAmount += totalAmount;
+            } else {
+                cart.items.push(cartItem);
+            }
+        } else {
+            cart = new Cart({
+                user: userId,
+                items: [cartItem]
+            });
+        }
+
+        await cart.save();
+        return res.status(200).json({succcess: true, message: 'Product added to cart successfully', cart, updatedProduct });
+
+    } catch (error) {
+        console.log("Error adding product to cart:", error);
+        return res.status(500).json({ message: 'Failed to add product to cart', error });
+    }
+};
+
 
 module.exports = {
     addCategory,
@@ -195,5 +249,6 @@ module.exports = {
     getCategoriesWithSubCategories,
     getAllProducts,
     getSingleProduct,
-    updateProduct
+    updateProduct,
+    addToCart
 }

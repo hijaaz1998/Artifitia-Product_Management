@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axiosInstance from '../../axionEndPoint/axiosEndPoint';
 import { toast } from 'react-hot-toast';
 
-const EditProductModal = ({ isOpen, onClose, product }) => {
+const EditProductModal = ({ isOpen, onClose, product, fetchSingleProductDetails }) => {
   const [productName, setProductName] = useState('');
   const [brand, setBrand] = useState('');
   const [productCode, setProductCode] = useState('');
@@ -39,6 +39,7 @@ const EditProductModal = ({ isOpen, onClose, product }) => {
       if (response.data.success) {
         toast.success('Product updated successfully!');
         onClose();
+        fetchSingleProductDetails();
       }
     } catch (error) {
         console.log(error)

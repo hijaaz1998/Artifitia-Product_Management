@@ -4,6 +4,7 @@ import LogoImage from '/Business Management Daily.jpeg';
 import { logout } from '../slices/userSlice';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const NavBar = ({ onToggleCartOverlay, onToggleWishlistOverlay, cartCount, wishlistCount }) => {
 
@@ -18,7 +19,9 @@ const NavBar = ({ onToggleCartOverlay, onToggleWishlistOverlay, cartCount, wishl
   return (
     <div className="p-4 flex justify-between items-center bg-sky-950">
       <div className="flex items-center">
-        <img src={LogoImage} alt="Logo" className="h-10 w-auto mr-4 rounded-xl" />
+        <Link to={'/home'}>
+          <img src={LogoImage} alt="Logo" className="h-10 w-auto mr-4 rounded-xl" />
+        </Link>
       </div>
 
       <div className="flex items-center bg-green-300 rounded-2xl w-96">
