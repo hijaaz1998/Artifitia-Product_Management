@@ -5,14 +5,14 @@ import axiosInstance from '../axionEndPoint/axiosEndPoint';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux'
 import { login } from '../slices/userSlice';
-import { addItem } from '../slices/cartSlice';
+import { addItem, clearCart } from '../slices/cartSlice';
+import { addWishlist, clearWishlist } from '../slices/wishlistSlice';
+import { GoogleLogin } from "@react-oauth/google";
 
 const LoginForm = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  const cart = useSelector((state) => state.cart.cart)
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -37,11 +37,21 @@ const LoginForm = () => {
 
       if (response.status === 200) {
         toast.success(response.data.message);
+
         localStorage.setItem('userId', response.data.userId)
+
         dispatch(login(response.data.token))
+        dispatch(clearCart());
+        dispatch(clearWishlist());
+
         response.data.cartItems.forEach(item => {
           dispatch(addItem(item));
         });
+
+        response.data.wishlistItems.forEach((item) => {
+          dispatch(addWishlist(item))
+        })
+        
         navigate('/home');
       } else {
         toast.error(response.data.error);
@@ -52,6 +62,18 @@ const LoginForm = () => {
       } else {
         toast.error(error.message);
       }
+    }
+  };
+
+  const handleLoginSuccess = async (credentialResponse) => {
+    credentialResponse.credential;
+    const credential = credentialResponse.credential;
+    const success = await axiosInstance.post("/user/googleAuth", {
+      credential,
+    });
+    if (success) {
+      dispatch(login(success.data.user));
+      navigate("/home");
     }
   };
 
@@ -95,6 +117,12 @@ const LoginForm = () => {
           </button>
         </div>
       </form>
+      <GoogleLogin
+            onSuccess={handleLoginSuccess}
+            onError={() => {
+              console.log("Login Failed");
+            }}
+          />
     </div>
   );
 };

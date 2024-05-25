@@ -17,6 +17,10 @@ const NavBar = ({ onToggleCartOverlay, onToggleWishlistOverlay, wishlistCount, p
   const cart = useSelector((state) => state.cart.cart);
   const cartItemCount = cart.reduce((count, item) => count + item.qty, 0);
 
+  const wishlist = useSelector((state) => state.wishlist.wishlist)
+  const wishlistItems = wishlist.length;
+  console.log("----------",wishlistItems)
+
   const handleSearch = async () => {
     try {
       const response = await axiosInstance.get(`/product/searchItems?text=${search}&userId=${userId}`);
@@ -67,10 +71,9 @@ const NavBar = ({ onToggleCartOverlay, onToggleWishlistOverlay, wishlistCount, p
           )}
         </div>
         <div className="relative">
-          <button onClick={() => {
-            console.log('goooo')
+          <button onClick={
             onToggleCartOverlay
-            }} className="p-2 text-amber-500 hover:text-white border-blue-500">
+            } className="p-2 text-amber-500 hover:text-white border-blue-500">
             <FaShoppingCart size={24} className="bg-transparent" />
           </button>
           {cartItemCount > 0 && (

@@ -5,7 +5,6 @@ const jwt = require('jsonwebtoken')
 const verifyLogin = async (data) => {
     try {
         const userData = await User.findOne({ email: data.email });
-        console.log(userData)
 
         if (!userData) {
             return { status: 404, error: "Invalid Email Or Password" };

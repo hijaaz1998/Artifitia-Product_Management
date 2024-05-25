@@ -49,9 +49,9 @@ const SideBar = ({ setFilter, setProducts }) => {
   };
 
   return (
-    <div className='bg-blue-300 h-full p-4'>
+    <div className=' h-full p-4 border-r-2 border-r-black'>
       <div className="text-lg font-bold mb-2">Categories</div>
-      <h1 className='cursor-pointer mb-3' onClick={handleAllCategoriesClick}>All Categories</h1>
+      <h1 className='cursor-pointer font-semibold mb-3' onClick={handleAllCategoriesClick}>All Categories</h1>
       {categoriesWithSub.map((category, index) => (
         <div key={category._id} className="mb-4">
           <div

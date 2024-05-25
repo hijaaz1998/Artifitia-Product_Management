@@ -17,10 +17,7 @@ const ProductDetailsPage = () => {
           onToggleWishlistOverlay={onToggleWishlistOverlay}
         />
       </div>
-      <div className="py-3">
-        <BreadCrumbs />
-      </div>
-      <div className="flex-1">
+      <div className="flex-1 mt-10">
         <ProductDetails 
           productId={id} 
         />

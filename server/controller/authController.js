@@ -3,6 +3,7 @@ const passwordHasher = require('../helpers/passwordHash');
 const bcrypt = require('bcrypt')
 const {verifyLogin} = require('../helpers/verifyLogin')
 const Cart = require ('../model/cartMode');
+const Wishlist = require('../model/wishListModel')
 
 const registerUser = async (req, res) => {
     try {
@@ -33,17 +34,19 @@ const loginUser = async (req, res) => {
     try {
         const loginResult = await verifyLogin(req.body);
 
-        const cartItems = await Cart.find({ user: loginResult.userId });
+        const cartItems = await Cart.find({ user: loginResult.userId }).populate('items.product');
+        const wishlistItems = await Wishlist.find({ user: loginResult.userId }).populate('items.product');
 
         const flattenedCartItems = cartItems.flatMap(cart => cart.items);
-        console.log(flattenedCartItems)
+        const flattenedWishlistItems = wishlistItems.flatMap(wishlist => wishlist.items);
 
         if (loginResult.status === 200) {
             res.status(200).json({ 
                 message: "Login successful", 
                 token: loginResult.token, 
                 userId: loginResult.userId, 
-                cartItems: flattenedCartItems 
+                cartItems: flattenedCartItems,
+                wishlistItems: flattenedWishlistItems 
             });
         } else if (loginResult.status === 401) {
             res.status(401).json({ error: loginResult.error });
@@ -55,6 +58,7 @@ const loginUser = async (req, res) => {
         res.status(500).json({ message: 'Error logging in user', error: error.message });
     }
 };
+
 
 
 

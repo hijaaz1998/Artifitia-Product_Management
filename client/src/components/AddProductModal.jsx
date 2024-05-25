@@ -12,6 +12,7 @@ const AddProductModal = ({ onClose }) => {
   const [imageSrc, setImageSrc] = useState('');
   const [croppedImages, setCroppedImages] = useState([]);
   const [isCropperOpen, setIsCropperOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [publicId, setPublicId] = useState("");
   const [cloudName] = useState("dpfrbdv8l");
@@ -31,7 +32,6 @@ const AddProductModal = ({ onClose }) => {
   const [variants, setVariants] = useState([{ ram: '', price: '', qty: 1 }]);
   const [description, setDescription] = useState('');
   const [images, setImages] = useState([]);
-  const [imagePreviews, setImagePreviews] = useState([]);
 
   const fetchSubcategories = async () => {
     try {
@@ -148,7 +148,6 @@ const AddProductModal = ({ onClose }) => {
         return response.data.secure_url;
       });
 
-      // Wait for all uploads to complete
       const imageUrls = await Promise.all(uploadPromises);
       console.log('urllllllll', imageUrls)
       return imageUrls;
@@ -165,11 +164,11 @@ const AddProductModal = ({ onClose }) => {
       return;
     }
 
+    setIsLoading(true);
+
     try {
-      // Upload all images to Cloudinary
       const imageUrls = await handleImageUpload(images);
       
-      // Once all images are uploaded, proceed with adding the product
       const formData = new FormData();
       formData.append('userId', userId);
       formData.append('productName', productName);
@@ -191,6 +190,8 @@ const AddProductModal = ({ onClose }) => {
       }
     } catch (error) {
       toast.error(error.message);
+    } finally {
+      setIsLoading(false); 
     }
   };
 
@@ -464,8 +465,9 @@ const AddProductModal = ({ onClose }) => {
                 <button
                   type="submit"
                   className="text-white font-medium rounded-lg text-sm px-5 py-2.5 w-24 bg-amber-500"
+                  disabled={isLoading}
                 >
-                  ADD
+                  {isLoading ? 'Submitting...' : 'ADD'}
                 </button>
                 <button
                   type="button"

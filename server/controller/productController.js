@@ -131,15 +131,30 @@ const getCategoriesWithSubCategories = async (req, res) => {
 
 const getAllProducts = async (req, res) => {
     try {
-        const {userId} = req.params;
+        const { userId } = req.params;
 
-        const products = await Product.find({author: userId})
+        const page = parseInt(req.query.page) || 1;
+        const itemsPerPage = 6;
+        const skip = (page - 1) * itemsPerPage;
 
-        res.json({products})
+        const products = await Product.find({ author: userId })
+            .skip(skip)
+            .limit(itemsPerPage);
+
+        const totalProducts = await Product.countDocuments({ author: userId });
+
+        const totalPages = Math.ceil(totalProducts / itemsPerPage);
+
+        res.json({
+            products,
+            currentPage: page,
+            totalPages,
+            totalProducts,
+        });
     } catch (error) {
-        
+        res.status(500).json({ message: 'Error fetching products', error: error.message });
     }
-}
+};
 
 const getSingleProduct = async (req, res) => {
     try {
@@ -305,7 +320,26 @@ const filterProducts = async (req, res) => {
     }
 };
 
+const removeFromCart = async (req, res) => {
+    try {
+        const { userId, productId } = req.query;
 
+        const cart = await Cart.findOne({ user: userId })
+
+        const itemIndex = cart.items.findIndex(item => item.product._id.toString() === productId);
+
+        cart.items.splice(itemIndex, 1);
+
+        await cart.save();
+
+        const newCart = await Cart.find({ user: userId }).populate('items.product'); 
+
+        res.status(200).json({ message: 'Item removed from cart successfully', newCart, success: true });
+    } catch (error) {
+        console.error('Error removing item from cart:', error);
+        res.status(500).json({ message: 'Error removing item from cart', error: error.message });
+    }
+};
 
 module.exports = {
     addCategory,
@@ -320,5 +354,6 @@ module.exports = {
     addToCart,
     addToWishlist,
     searchItems,
-    filterProducts
+    filterProducts,
+    removeFromCart
 }

@@ -132,7 +132,7 @@ const ProductDetails = ({ productId }) => {
         <div className="border-b-2 border-gray-300 mb-4">
           <h2 className="text-xl font-bold mb-2">{product.productName}</h2>
           <p className="mb-2 font-semibold">
-            {selectedVariantIndex !== null ? `$${product.variants[selectedVariantIndex].price.toFixed(2)}` : 'Select a variant to show the price'}
+            {selectedVariantIndex !== null ? `$${product.variants[selectedVariantIndex].price.toFixed(2)}` : 'Select a variant to see the price'}
           </p>
           <p className='mb-2 font-semibold'>{product.description}</p>
           <div className="flex items-center mb-2">

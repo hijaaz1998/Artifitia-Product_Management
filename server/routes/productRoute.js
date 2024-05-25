@@ -19,5 +19,6 @@ productRouter.post('/addToCart', productController.addToCart)
 productRouter.post('/addToWishlist', productController.addToWishlist)
 productRouter.get('/searchItems', productController.searchItems);
 productRouter.get('/filter', productController.filterProducts)
+productRouter.delete('/removeFromCart', productController.removeFromCart)
 
 module.exports = productRouter

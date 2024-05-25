@@ -3,8 +3,11 @@ import { Link } from 'react-router-dom';
 import LoginForm from '../components/LoginForm'
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 const LoginPage = () => {
+
+    const googleId = import.meta.env.VITE_GOOGLE_API;
 
     const navigate = useNavigate();
     const user = useSelector((state) => state.user.user)
@@ -16,7 +19,9 @@ const LoginPage = () => {
   return (
     <div className="w-full flex flex-col md:flex-row h-screen">
         <div className="w-full md:w-[60%] p-4 flex items-center justify-center">
-            <LoginForm />
+            <GoogleOAuthProvider clientId={googleId}>
+                <LoginForm />
+            </GoogleOAuthProvider>
         </div>
         <div className="w-full md:w-[40%] p-4 flex flex-col items-center justify-center" style={{ backgroundImage: 'url(/background.jpeg)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
             <div className="text-white text-center space-y-6">
