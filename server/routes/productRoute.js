@@ -12,5 +12,8 @@ productRouter.post('/addSubCategory', productController.addSubCategory)
 productRouter.get('/fetchSubCategory/:userId', productController.fetchSubCategories)
 productRouter.post('/addProduct', upload.none(), productController.addProduct)
 productRouter.get('/getCategoriesWithSub/:userId', productController.getCategoriesWithSubCategories)
+productRouter.get('/getAllProducts/:userId', productController.getAllProducts)
+productRouter.get('/getSingleProduct/:productId', productController.getSingleProduct)
+productRouter.put('/updateProduct/:productId', productController.updateProduct)
 
 module.exports = productRouter

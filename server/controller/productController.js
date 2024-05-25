@@ -127,6 +127,64 @@ const getCategoriesWithSubCategories = async (req, res) => {
     }
 }
 
+const getAllProducts = async (req, res) => {
+    try {
+        const {userId} = req.params;
+
+        const products = await Product.find({author: userId})
+
+        res.json({products})
+    } catch (error) {
+        
+    }
+}
+
+const getSingleProduct = async (req, res) => {
+    try {
+        const { productId } = req.params;
+        console.log(productId)
+        const product = await Product.findOne({_id: productId});
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+        console.log(product)
+        // If product is found, send it in the response
+        res.status(200).json({ product });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+}
+
+
+const updateProduct = async (req, res) => {
+    const { productId } = req.params;
+    const { productName, brand, productCode, description, variants } = req.body;
+    
+    try {
+        const updatedProduct = await Product.findByIdAndUpdate(
+            productId,
+            {
+                productName,
+                brand,
+                productCode,
+                variants,
+                description
+            },
+            { new: true }
+        );
+
+        if (!updatedProduct) {
+            return res.status(404).json({ success: false, message: 'Product not found' });
+        }
+
+        res.status(200).json({ message: 'Product updated successfully', success: true, data: updatedProduct });
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ message: 'Failed to update product', success: false });
+    }
+};
+
 
 module.exports = {
     addCategory,
@@ -134,5 +192,8 @@ module.exports = {
     addSubCategory,
     fetchSubCategories,
     addProduct,
-    getCategoriesWithSubCategories
+    getCategoriesWithSubCategories,
+    getAllProducts,
+    getSingleProduct,
+    updateProduct
 }
