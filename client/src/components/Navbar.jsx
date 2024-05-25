@@ -61,7 +61,7 @@ const NavBar = ({ onToggleCartOverlay, onToggleWishlistOverlay, wishlistCount, p
 
       <div className="flex items-center space-x-4">
         <div className="relative">
-          <button onClick={onToggleWishlistOverlay} className="p-2 text-amber-500 hover:text-white border-blue-500">
+          <button className="p-2 text-amber-500 hover:text-white border-blue-500">
             <FaHeart size={24} className="bg-transparent" />
           </button>
           {wishlistCount > 0 && (
@@ -71,9 +71,7 @@ const NavBar = ({ onToggleCartOverlay, onToggleWishlistOverlay, wishlistCount, p
           )}
         </div>
         <div className="relative">
-          <button onClick={
-            onToggleCartOverlay
-            } className="p-2 text-amber-500 hover:text-white border-blue-500">
+          <button className="p-2 text-amber-500 hover:text-white border-blue-500">
             <FaShoppingCart size={24} className="bg-transparent" />
           </button>
           {cartItemCount > 0 && (

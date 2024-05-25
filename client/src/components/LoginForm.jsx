@@ -3,14 +3,13 @@ import { HiOutlineMail, HiOutlineLockClosed } from 'react-icons/hi';
 import { toast } from 'react-hot-toast';
 import axiosInstance from '../axionEndPoint/axiosEndPoint';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux';
 import { login } from '../slices/userSlice';
 import { addItem, clearCart } from '../slices/cartSlice';
 import { addWishlist, clearWishlist } from '../slices/wishlistSlice';
-import { GoogleLogin } from "@react-oauth/google";
+import { GoogleLogin } from '@react-oauth/google';
 
 const LoginForm = () => {
-
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -38,20 +37,20 @@ const LoginForm = () => {
       if (response.status === 200) {
         toast.success(response.data.message);
 
-        localStorage.setItem('userId', response.data.userId)
+        localStorage.setItem('userId', response.data.userId);
 
-        dispatch(login(response.data.token))
-        dispatch(clearCart());
-        dispatch(clearWishlist());
+        dispatch(login(response.data.token));
+        // dispatch(clearCart());
+        // dispatch(clearWishlist());
 
-        response.data.cartItems.forEach(item => {
-          dispatch(addItem(item));
-        });
+        // response.data.cartItems.forEach((item) => {
+        //   dispatch(addItem(item));
+        // });
 
-        response.data.wishlistItems.forEach((item) => {
-          dispatch(addWishlist(item))
-        })
-        
+        // response.data.wishlistItems.forEach((item) => {
+        //   dispatch(addWishlist(item));
+        // });
+
         navigate('/home');
       } else {
         toast.error(response.data.error);
@@ -66,14 +65,37 @@ const LoginForm = () => {
   };
 
   const handleLoginSuccess = async (credentialResponse) => {
-    credentialResponse.credential;
-    const credential = credentialResponse.credential;
-    const success = await axiosInstance.post("/user/googleAuth", {
-      credential,
-    });
-    if (success) {
-      dispatch(login(success.data.user));
-      navigate("/home");
+    try {
+      const credential = credentialResponse.credential;
+
+      const response = await axiosInstance.post('/auth/googleAuth', { token: credential });
+
+      if (response.data.success) {
+
+        toast.success('Login successful');
+
+        localStorage.setItem('userId', response.data.userId)
+
+        dispatch(login(response.data.token));
+        // dispatch(addItem(item))
+
+        // response.data.cartItems.forEach((item) => {
+        //   dispatch(addItem(item));
+        // });
+
+        // response.data.wishlistItems.forEach((item) => {
+        //   dispatch(addWishlist(item));
+        // });
+
+        navigate('/home');
+
+      } else {
+        
+        toast.error('Google login failed');
+      }
+    } catch (error) {
+      toast.error('Google login error', error.message);
+      console.log('Google login error:', error);
     }
   };
 
@@ -118,11 +140,11 @@ const LoginForm = () => {
         </div>
       </form>
       <GoogleLogin
-            onSuccess={handleLoginSuccess}
-            onError={() => {
-              console.log("Login Failed");
-            }}
-          />
+        onSuccess={handleLoginSuccess}
+        onError={() => {
+          console.log('Login Failed');
+        }}
+      />
     </div>
   );
 };

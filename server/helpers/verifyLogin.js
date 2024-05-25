@@ -33,5 +33,7 @@ const createToken = (id) => {
 };
 
 module.exports = {
-    verifyLogin
+    verifyLogin,
+    createToken,
+    maxAge
 };

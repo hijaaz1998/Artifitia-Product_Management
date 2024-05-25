@@ -1,9 +1,9 @@
-const User = require('../model/userModel');
+const {jwtDecode} = require('jwt-decode'); // Ensure this is correctly imported
+const User = require('../model/userModel'); // Adjust the path to your User model accordingly
 const passwordHasher = require('../helpers/passwordHash');
-const bcrypt = require('bcrypt')
-const {verifyLogin} = require('../helpers/verifyLogin')
-const Cart = require ('../model/cartMode');
-const Wishlist = require('../model/wishListModel')
+const { verifyLogin, createToken, maxAge } = require('../helpers/verifyLogin');
+const Cart = require('../model/cartMode');
+const Wishlist = require('../model/wishListModel');
 
 const registerUser = async (req, res) => {
     try {
@@ -59,12 +59,67 @@ const loginUser = async (req, res) => {
     }
 };
 
+const googleAuth = async (req, res) => {
+    try {
+        const { token } = req.body;
 
+        const decoded = jwtDecode(token);
 
+        const email = decoded.email;
+        const name = decoded.name;
 
+        const existingUser = await User.findOne({ email });
 
+        if (!existingUser) {
+            const newUser = new User({
+                name,
+                email
+            });
+
+            await newUser.save();
+
+            const cartItems = await Cart.find({ user: newUser._id }).populate('items.product');
+            const wishlistItems = await Wishlist.find({ user: newUser._id }).populate('items.product');
+
+            const flattenedCartItems = cartItems.flatMap(cart => cart.items);
+            const flattenedWishlistItems = wishlistItems.flatMap(wishlist => wishlist.items);
+
+            const jwtToken = createToken(newUser._id);
+
+            res.status(201).json({
+                message: 'Login successful',
+                token: jwtToken,
+                userId: newUser._id,
+                cartItems: flattenedCartItems,
+                wishlistItems: flattenedWishlistItems,
+                success: true
+            });
+        } else {
+            const cartItems = await Cart.find({ user: existingUser._id }).populate('items.product');
+            const wishlistItems = await Wishlist.find({ user: existingUser._id }).populate('items.product');
+
+            const flattenedCartItems = cartItems.flatMap(cart => cart.items);
+            const flattenedWishlistItems = wishlistItems.flatMap(wishlist => wishlist.items);
+
+            const jwtToken = createToken(existingUser._id);
+
+            res.status(200).json({
+                message: 'Login successful',
+                token: jwtToken,
+                userId: existingUser._id,
+                cartItems: flattenedCartItems,
+                wishlistItems: flattenedWishlistItems,
+                success: true
+            });
+        }
+    } catch (error) {
+        console.error('Error in googleAuth:', error);
+        res.status(500).json({ message: 'Error creating user', error: error.message });
+    }
+};
 
 module.exports = {
     registerUser,
-    loginUser
+    loginUser,
+    googleAuth
 };
