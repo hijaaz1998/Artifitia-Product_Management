@@ -3,13 +3,16 @@ import { HiOutlineMail, HiOutlineLockClosed } from 'react-icons/hi';
 import { toast } from 'react-hot-toast';
 import axiosInstance from '../axionEndPoint/axiosEndPoint';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { login } from '../slices/userSlice';
+import { addItem } from '../slices/cartSlice';
 
 const LoginForm = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const cart = useSelector((state) => state.cart.cart)
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -36,17 +39,17 @@ const LoginForm = () => {
         toast.success(response.data.message);
         localStorage.setItem('userId', response.data.userId)
         dispatch(login(response.data.token))
+        response.data.cartItems.forEach(item => {
+          dispatch(addItem(item));
+        });
         navigate('/home');
       } else {
-        // Handle other status codes
         toast.error(response.data.error);
       }
     } catch (error) {
       if (error.response && error.response.data) {
-        // Handle specific error messages from backend
         toast.error(error.response.data.error);
       } else {
-        // Handle general error messages
         toast.error(error.message);
       }
     }

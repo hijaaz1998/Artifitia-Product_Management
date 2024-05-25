@@ -3,11 +3,11 @@ import axiosInstance from '../axionEndPoint/axiosEndPoint';
 import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import './Sidebar.css';
 
-const SideBar = () => {
+const SideBar = ({ setFilter, setProducts }) => {
   const userId = localStorage.getItem('userId');
-  
   const [selector1Open, setSelector1Open] = useState(false);
   const [categoriesWithSub, setCategoriesWithSub] = useState([]);
+  const [selectedFilters, setSelectedFilters] = useState([]);
 
   const fetchCategoriesWithSubCategories = async () => {
     try {
@@ -22,9 +22,36 @@ const SideBar = () => {
     fetchCategoriesWithSubCategories();
   }, []);
 
+  const handleCheckboxChange = (subCategoryId) => {
+    setSelectedFilters((prevSelectedFilters) => {
+      const isSelected = prevSelectedFilters.includes(subCategoryId);
+      if (isSelected) {
+        return prevSelectedFilters.filter((id) => id !== subCategoryId);
+      } else {
+        return [...prevSelectedFilters, subCategoryId];
+      }
+    });
+  };
+
+  useEffect(() => {
+    setFilter(selectedFilters);
+  }, [selectedFilters, setFilter]);
+
+  const handleAllCategoriesClick = async () => {
+    try {
+      const response = await axiosInstance.get(`/product/getAllProducts/${userId}`);
+      setProducts(response.data.products);
+      setSelectedFilters([]);
+      setSelector1Open(false);
+    } catch (error) {
+      console.error('Error fetching all products:', error);
+    }
+  };
+
   return (
     <div className='bg-blue-300 h-full p-4'>
       <div className="text-lg font-bold mb-2">Categories</div>
+      <h1 className='cursor-pointer mb-3' onClick={handleAllCategoriesClick}>All Categories</h1>
       {categoriesWithSub.map((category, index) => (
         <div key={category._id} className="mb-4">
           <div
@@ -45,6 +72,7 @@ const SideBar = () => {
                     id={subCategory._id}
                     name={subCategory.subCategoryName}
                     className="custom-checkbox"
+                    onChange={() => handleCheckboxChange(subCategory._id)}
                   />
                   <label htmlFor={subCategory._id} className="custom-checkbox-label">
                     {subCategory.subCategoryName}

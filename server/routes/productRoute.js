@@ -16,5 +16,8 @@ productRouter.get('/getAllProducts/:userId', productController.getAllProducts)
 productRouter.get('/getSingleProduct/:productId', productController.getSingleProduct)
 productRouter.put('/updateProduct/:productId', productController.updateProduct);
 productRouter.post('/addToCart', productController.addToCart)
+productRouter.post('/addToWishlist', productController.addToWishlist)
+productRouter.get('/searchItems', productController.searchItems);
+productRouter.get('/filter', productController.filterProducts)
 
 module.exports = productRouter

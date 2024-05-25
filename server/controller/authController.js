@@ -2,6 +2,7 @@ const User = require('../model/userModel');
 const passwordHasher = require('../helpers/passwordHash');
 const bcrypt = require('bcrypt')
 const {verifyLogin} = require('../helpers/verifyLogin')
+const Cart = require ('../model/cartMode');
 
 const registerUser = async (req, res) => {
     try {
@@ -32,8 +33,18 @@ const loginUser = async (req, res) => {
     try {
         const loginResult = await verifyLogin(req.body);
 
+        const cartItems = await Cart.find({ user: loginResult.userId });
+
+        const flattenedCartItems = cartItems.flatMap(cart => cart.items);
+        console.log(flattenedCartItems)
+
         if (loginResult.status === 200) {
-            res.status(200).json({ message: "Login successful", token: loginResult.token, userId: loginResult.userId });
+            res.status(200).json({ 
+                message: "Login successful", 
+                token: loginResult.token, 
+                userId: loginResult.userId, 
+                cartItems: flattenedCartItems 
+            });
         } else if (loginResult.status === 401) {
             res.status(401).json({ error: loginResult.error });
         } else {
@@ -44,6 +55,7 @@ const loginUser = async (req, res) => {
         res.status(500).json({ message: 'Error logging in user', error: error.message });
     }
 };
+
 
 
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import NavBar from '../components/Navbar';
 import BreadCrumbs from '../components/BreadCrumbs';
@@ -10,8 +10,11 @@ import WishlistSidebar from '../components/WishlistSidebar';
 import AddCategoryModal from '../components/modal/AddCategoryModal';
 import AddSubCategoryModal from '../components/modal/AddSubCategoryModal';
 import AddProductModal from '../components/AddProductModal';
+import axiosInstance from '../axionEndPoint/axiosEndPoint';
 
 const HomePage = () => {
+  const [products, setProducts] = useState([]);
+  const [filter, setFilter] = useState([]);
 
   const [isCartOverlayOpen, setIsCartOverlayOpen] = useState(false);
   const [isWishlistOverlayOpen, setIsWishlistOverlayOpen] = useState(false);
@@ -27,6 +30,21 @@ const HomePage = () => {
     { id: 2, name: 'Item B' },
     { id: 3, name: 'Item C' },
   ]);
+
+  useEffect(() => {
+    const fetchFilteredProducts = async () => {
+      try {
+        const response = await axiosInstance.get('/product/filter', {
+          params: { filter },
+        });
+        setProducts(response.data);
+      } catch (error) {
+        console.error('Error fetching filtered products:', error);
+      }
+    };
+
+    fetchFilteredProducts();
+  }, [filter]);
 
   const handleToggleCartOverlay = () => {
     setIsCartOverlayOpen(!isCartOverlayOpen);
@@ -57,41 +75,46 @@ const HomePage = () => {
   };
 
   return (
-    <div className="relative h-screen flex flex-col">
+    <div className="relative h-screen flex flex-col z-50">
       <div className="bg-cyan-200 w-full fixed z-10">
-        <NavBar 
-          onToggleCartOverlay={handleToggleCartOverlay} 
-          onToggleWishlistOverlay={handleToggleWishlistOverlay} 
-          cartCount={cartItems.length} 
-          wishlistCount={wishlistItems.length} 
+        <NavBar
+          onToggleCartOverlay={handleToggleCartOverlay}
+          onToggleWishlistOverlay={handleToggleWishlistOverlay}
+          cartCount={cartItems.length}
+          wishlistCount={wishlistItems.length}
+          products={products}
+          setProducts={setProducts}
         />
       </div>
-      <div className="flex py-3 w-full fixed top-[70px] z-10 ">
+      <div className="flex py-3 w-full fixed top-[70px] ">
         <div className="w-1/2 flex items-center">
           <BreadCrumbs />
         </div>
         <div className="w-1/2">
-          <Buttons 
-            onAddCategoryClick={toggleAddCategoryModal} 
+          <Buttons
+            onAddCategoryClick={toggleAddCategoryModal}
             onAddSubcategoryClick={toggleAddSubcategoryModal}
             onAddProductClick={toggleAddProductModal}
           />
         </div>
-
       </div>
       <div className="bg-violet-800 mt-36 grid grid-cols-10 h-full">
         <div className="bg-yellow-200 col-span-2 flex flex-col">
           <div className="w-72 fixed h-full">
-            <SideBar />
+            <SideBar setFilter={setFilter} setProducts={setProducts}/>
           </div>
         </div>
         <div className="bg-orange-300 col-span-8 flex flex-col">
           <div className="flex-grow">
-            <Main />
+            <Main 
+              products={products} 
+              setProducts={setProducts}
+              onToggleCartOverlay={handleToggleCartOverlay}
+              onToggleWishlistOverlay={handleToggleWishlistOverlay}
+            />
           </div>
         </div>
       </div>
-
 
       {isCartOverlayOpen && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-end z-20">

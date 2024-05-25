@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { FaTimes } from 'react-icons/fa';
+import { useSelector } from 'react-redux';
 
 const CartSidebar = ({ cartItems, onRemoveItem, close }) => {
+
   const [showModal, setShowModal] = useState(true);
+  const cart = useSelector((state) => state.cart.cart)
 
   const handleRemoveItem = (itemId) => {
     onRemoveItem(itemId);
@@ -15,7 +18,7 @@ const CartSidebar = ({ cartItems, onRemoveItem, close }) => {
     <div className="p-4">
       <h2 className="text-lg font-bold mb-4">Cart Items</h2>
       <ul>
-        {cartItems.map(item => (
+        {cart.map(item => (
           <li key={item.id} className="flex mb-4 border p-2 rounded">
             <div className="w-1/4 flex-shrink-0">
               <img src='/Business Management Daily.jpeg' alt={item.name} className="w-full h-auto object-cover" />

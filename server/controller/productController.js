@@ -3,6 +3,7 @@ const SubCategoryModel = require('../model/SubCategoryModel');
 const SubCategory = require('../model/SubCategoryModel')
 const Product = require('../model/productModel')
 const Cart = require('../model/cartMode')
+const Wishlist = require('../model/wishListModel')
 
 const addCategory = async (req, res) => {
     try {
@@ -239,6 +240,72 @@ const addToCart = async (req, res) => {
     }
 };
 
+const addToWishlist = async (req, res) => {
+    try {
+        const { userId, productId, ram } = req.body;
+        console.log(req.body)
+        
+        let wishlist = await Wishlist.findOne({ user: userId });
+
+        if (wishlist) {
+            const existingItem = wishlist.items.find(item => item.product.toString() === productId && item.ram === ram);
+            
+            if (existingItem) {
+                return res.status(400).json({ message: 'Item already in wishlist' });
+            } else {
+                wishlist.items.push({ product: productId, ram });
+            }
+        } else {
+            wishlist = new Wishlist({ user: userId, items: [{ product: productId, ram }] });
+        }
+
+        await wishlist.save();
+        res.status(201).json({ message: 'Item added to wishlist', wishlist });
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ message: 'Error adding to wishlist', error: error.message });
+    }
+};
+
+const searchItems = async(req, res) => {
+    try {
+        const{text, userId} = req.query;
+        const regex = new RegExp(text, 'i');
+
+        const results = await Product.find({
+            $or: [
+                { productName: { $regex: regex } },
+                { brand: { $regex: regex } },
+                { description: { $regex: regex } }
+            ]
+        })
+        .exec();
+
+        res.status(200).json({success: true, results})
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+const filterProducts = async (req, res) => {
+    try {
+        const { filter } = req.query;
+
+        if (filter) {
+            const products = await Product.find({ subCategory: { $in: filter } });
+            res.status(200).json(products);
+        } else {
+            res.status(400).json({ message: 'Filter is required' });
+        }
+    } catch (error) {
+        console.error('Error filtering products:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+
 
 module.exports = {
     addCategory,
@@ -250,5 +317,8 @@ module.exports = {
     getAllProducts,
     getSingleProduct,
     updateProduct,
-    addToCart
+    addToCart,
+    addToWishlist,
+    searchItems,
+    filterProducts
 }
